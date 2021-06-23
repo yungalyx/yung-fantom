@@ -6,6 +6,7 @@ import { Line, OrbitControls, Html } from '@react-three/drei'
 import { Sphere } from "../src/components/Sphere"
 import axios from "axios"
 import img from "./assets/space.gif"
+import { MyLine } from "../src/components/line"
 
 
 
@@ -17,8 +18,10 @@ function App() {
   const [mainBalance, setMainBalance] = useState([])
   const [loading, setLoading] = useState(true)
   const [transactionMap, setTransactionMap] = useState({})
+  
+  const [otherAddresses, setOtherAddresses] = useState([])
 
-  function manageTransactions(data) {
+  async function manageTransactions(data) {
     var dict = new Map();
     let ftm_rate = 0; // loops to collect average price from value_quote, used when value_quote is null but balance isn't.
     data.forEach(x => {
@@ -53,16 +56,19 @@ function App() {
         }
       }
     })
-    let otherAddress = []
     dict.forEach((k, v) => {
-      otherAddress.push({
-        address: v,
-        in: k.in,
-        out: k.out
+      fetch(`https://api.covalenthq.com/v1/250/address/${v}/balances_v2/?key=ckey_e1c94fe3c10248478f939aeb7b2`).then(res => res.json())
+      .then(data => {
+        setOtherAddresses(oldAddresses => [...oldAddresses, {
+          address: v,
+          balance: data?.data?.items,
+          in: k.in,
+          out: k.out
+        }])
+      
       })
     })
-    setoOtherAddresses(otherAddress)
-   
+    setLoading(false)
   }
    
 
@@ -74,8 +80,8 @@ function App() {
       //console.log(data[1].data.data.items)
       // console.log(data[1].data.data.items)
       manageTransactions(data[1].data.data.items)
-      setLoading(false)
     })
+    console.log(otherAddresses)
 
     /*
     fetch(`https://api.covalenthq.com/v1/250/address/${mainAddress}/balances_v2/?key=ckey_e1c94fe3c10248478f939aeb7b2`)
@@ -94,47 +100,16 @@ function App() {
     */
   }, [])
 
-  const [otherAddresses, setoOtherAddresses] = useState([
-    {
-      address: "0xwhatever",
-      balance: 10000,
-      in: 5,
-      out: 6000
-    },
-    {
-      address: "0xwhatever",
-      balance: 10000,
-      in: 300,
-      out: 421
-    },
-    {
-      address: "0xwhatever",
-      balance: 10000,
-      in: 3000,
-      out: 20
-    }, 
-    {
-      address: "0xwhatever",
-      balance: 10000,
-      in: 3000,
-      out: 20
-    }
-  ])
 
 
   const renderNeighbours = () => {
     return <group>
       {otherAddresses.map(i => {
-        const [x, y, z] = [Math.floor(Math.random() * 160)-80, Math.floor(Math.random()*120)-60, Math.floor(Math.random()*80)-40]
-        return <group>
-          <Sphere position={[x, y, z]} address={i.address}/>
-          <Line
-            points={[[0, 0, 0], [x, y, z]]}
-            color={'red'}
-            lineWidth={3}
-            dashed={true}
-          />
-        </group>
+        const [x, y, z] = [Math.floor(Math.random() * 120)-60, Math.floor(Math.random()*120)-60, Math.floor(Math.random()*120)-60]
+        return <mesh>
+          <Sphere position={[x, y, z]} address={i.address} balance={i.balance} debit={i.in} credit={i.out} />
+          <MyLine points={[[0, 0, 0], [x, y, z]]} data={i} />
+        </mesh>
       })}
     </group>
   }
@@ -150,7 +125,7 @@ function App() {
         <pointLight color="indianred" />
         <pointLight position={[50, 50, -50]} color="orange" />
         <pointLight position={[-50, -50, 50]} color="lightblue" />
-        <Sphere position={[0, 0, 0]} data={mainBalance} address={mainAddress}/>
+        <Sphere position={[0, 0, 0]} balance={mainBalance} address={mainAddress} main/>
         {renderNeighbours()}
         <OrbitControls autoRotate={true} minDistance={100} maxDistance={400}/>
       </Canvas>

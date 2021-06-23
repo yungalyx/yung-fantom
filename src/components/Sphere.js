@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { Line, OrbitControls, Html } from '@react-three/drei'
 
-export function Sphere({position, data, address}) {
+export function Sphere({position, balance, address, main, debit, credit}) {
     // This reference will give us direct access to the mesh
     const mesh = useRef()
     // Set up state for the hovered and active state
@@ -12,7 +12,6 @@ export function Sphere({position, data, address}) {
     // Rotate mesh every frame, this is outside of React without overhead
     useFrame(() => (mesh.current.rotation.x = mesh.current.rotation.y += 0.01))
 
-  
     return (
       <mesh
         position={position}
@@ -34,7 +33,7 @@ export function Sphere({position, data, address}) {
                         <th> Balance </th>
                         <th> Value </th>
                     </tr>
-                    {(data || []).map(d=>{
+                    {(balance || []).map(d=>{
                         return <tr>
                             <td> {d.contract_name} </td>
                             <td> {d.contract_ticker_symbol} </td>
@@ -44,6 +43,14 @@ export function Sphere({position, data, address}) {
                         
                     })}
                 </table>
+                {(!main) ?
+                <div>
+                    <p> Debits (in): ${debit.toFixed(2)} </p>
+                    <p> Credits (out): ${credit.toFixed(2)} </p>
+                </div> 
+                :
+                ""}
+               
             </div>
             :
             null
