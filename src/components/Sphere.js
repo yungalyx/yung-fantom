@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import ReactDOM from 'react-dom'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { Line, OrbitControls, Html } from '@react-three/drei'
@@ -10,18 +10,22 @@ export function Sphere({position, balance, address, main, debit, credit}) {
     const [hovered, setHover] = useState(false)
     const [active, setActive] = useState(false)
     // Rotate mesh every frame, this is outside of React without overhead
-    useFrame(() => (mesh.current.rotation.x = mesh.current.rotation.y += 0.01))
+    //useFrame(() => (mesh.current.rotation.x = mesh.current.rotation.y += 0.01))
+    
+    useEffect(() => {
+        document.body.style.cursor = hovered ? 'pointer' : 'auto'
+    }, [hovered])
 
     return (
       <mesh
         position={position}
         ref={mesh}
-        scale={hovered ? 1.2 : 1}
+        scale={hovered ? 1.05 : 1}
         onClick={(event) => setActive(!active)}
         onPointerOver={(event) => setHover(true)}
         onPointerOut={(event) => setHover(false)}>
         <sphereGeometry  attach='geometry' args={[10, 32, 32]} />
-        <meshStandardMaterial attach='material' color={active ? 'hotpink' : '#1969ff'} />
+        <meshStandardMaterial attach='material' color={active ? '#ee6c4d' : 'hotpink'} opacity={hovered? 0.9 : 1} />
         <Html distanceFactor={170}>
             {active ? 
             <div className="content">
