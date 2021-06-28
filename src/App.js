@@ -8,6 +8,7 @@ import { Stars } from "../src/components/stars"
 import axios from "axios"
 import img from "./assets/space.gif"
 import { MyLine } from "../src/components/line"
+import { LandingPage } from './components/landingpage';
 import { Modal } from "../src/components/modal"
 import { useRouteMatch } from 'react-router-dom'
 
@@ -20,6 +21,7 @@ function App() {
   const [mainAddress, setMainAddress] = useState("0x4D25eF2DcBD733A2868f8c3cfb409b2A4099a977".toLowerCase())
   const [mainBalance, setMainBalance] = useState([])
   const [loading, setLoading] = useState(true)
+  const [page, setPage] = useState("landing")
   const [openModal, setModal] = useState(false)
 
   const [otherAddresses, setOtherAddresses] = useState([])
@@ -111,28 +113,32 @@ function App() {
     </group>
   }
 
-  return (
-    <div className="html">
-      <Header openModal={setModal}/>
-      {loading ? <img src={img} className="loading"/>
-        :
-        <Canvas colorManagement camera={{ position: [0, 0, 150] }} onPointerMissed={() => setModal(true)}>
-          <directionalLight />
-          <pointLight color="indianred" />
-          <pointLight position={[50, 50, -50]} color="orange" />
-          <pointLight position={[-50, -50, 50]} color="lightblue" />
-          <Sphere position={[0, 0, 0]} balance={mainBalance} address={mainAddress} main />
-          {renderNeighbours()}
-          <Stars />
-          <OrbitControls autoRotate={true} minDistance={100} maxDistance={400} />
-        </Canvas>
-      }
-      <p className="footer">
-        Github
-      </p>
-      <Modal show={openModal} handleClose={() => setModal(false)} address={mainAddress} handleSubmit={handleSubmit} />
-    </div>
-  );
+  if (page === "landing") {
+    return <LandingPage enter={() => setPage}/>
+  } else {
+    return (
+      <div className="html">
+        <Header openModal={setModal}/>
+        {loading ? <img src={img} className="loading"/>
+          :
+          <Canvas colorManagement camera={{ position: [0, 0, 150] }} onPointerMissed={() => setModal(true)}>
+            <directionalLight />
+            <pointLight color="indianred" />
+            <pointLight position={[50, 50, -50]} color="orange" />
+            <pointLight position={[-50, -50, 50]} color="lightblue" />
+            <Sphere position={[0, 0, 0]} balance={mainBalance} address={mainAddress} main />
+            {renderNeighbours()}
+            <Stars />
+            <OrbitControls autoRotate={true} minDistance={100} maxDistance={400} />
+          </Canvas>
+        }
+        <a href="https://github.com/yungalyx" className="footer">
+          Github
+        </a>
+        <Modal show={openModal} handleClose={() => setModal(false)} address={mainAddress} handleSubmit={handleSubmit} />
+      </div>    
+    );
+  }
 }
 
 export default App;

@@ -1,5 +1,4 @@
 import React, {useState, useRef, useEffect, Suspense} from 'react'
-import { Link } from "react-router-dom";
 import '../App.scss';
 
 export function Modal({handleClose, show, address, handleSubmit}) {
